@@ -1,11 +1,13 @@
 import sys
-
 import pygame
+import math
+import random
 
 from scripts.utils import load_image, load_images, Animation
 from scripts.entities import PhysicsEntity, Player
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
+from scripts.particle import Particle
 
 
 class Game:
@@ -13,7 +15,7 @@ class Game:
         # Initialize Pygame
         pygame.init()
         # Change window name
-        pygame.display.set_caption('Kuromi Legends')
+        pygame.display.set_caption('Onegai My Kuromi')
 
         # Change window resolution
         self.screen = pygame.display.set_mode((640, 480))
@@ -41,6 +43,7 @@ class Game:
             'player/jump': Animation(load_images('entities/player/jump')),
             'player/slide': Animation(load_images('entities/player/slide')),
             'player/wall_slide': Animation(load_images('entities/player/wall_slide')),
+            'particle/leaf': Animation(load_images('particles/leaf'), img_dur=20, loop=False),
         }
 
         # Define Clouds
@@ -52,6 +55,14 @@ class Game:
         # Define Tile Map
         self.tilemap = Tilemap(self, tile_size=16)
         self.tilemap.load('map.json')
+
+        # Add leaves to trees
+        self.leaf_spawners = []
+        for tree in self.tilemap.extract([('large_decor', 2)], keep=True):
+            self.leaf_spawners.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
+
+        self.particles = []
+
         # Add Camera
         self.scroll = [0, 0]
 
@@ -66,9 +77,15 @@ class Game:
             # Remove jittery shit
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
 
+            # Spawn the leaf particles
+            for rect in self.leaf_spawners:
+                if random.random() * 49999 < rect.width * rect.height:
+                    pos = (rect.x + random.random() * rect.width, rect.y + random.random() * rect.height)
+                    self.particles.append(Particle(self, 'leaf', pos, velocity=[-0.1, 0.3], frame=random.randint(0, 20)))
+
             # Render Clouds
             self.clouds.update()
-            self.clouds.render(self.display, offset=render_scroll )
+            self.clouds.render(self.display, offset=render_scroll)
 
             # Render tile map
             self.tilemap.render(self.display, offset=render_scroll)
@@ -77,6 +94,15 @@ class Game:
             self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
             # Render Player
             self.player.render(self.display, offset=render_scroll)
+
+            # Render the particles and check if it needs to be removed
+            for particle in self.particles.copy():
+                kill = particle.update()
+                particle.render(self.display, offset=render_scroll)
+                if particle.type == 'leaf':
+                    particle.pos[0] += math.sin(particle.animation.frame * 0.035) * 0.3
+                if kill:
+                    self.particles.remove(particle)
 
             # Loop for All type of Events
             for event in pygame.event.get():
