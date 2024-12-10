@@ -107,7 +107,7 @@ class Player(PhysicsEntity):
         self.air_time += 1
 
         # Falling death
-        if self.air_time > 120:
+        if self.air_time > 180:
             self.game.dead += 1
 
         if self.collisions['down']:
@@ -213,7 +213,7 @@ class Enemy(PhysicsEntity):
             self.walking = max(0, self.walking - 1)
             if not self.walking:
                 dis = (self.game.player.pos[0] - self.pos[0], self.game.player.pos[1] - self.pos[1])
-                if abs(dis[1]) < 16:
+                if abs(dis[1]) or abs(dis[0]) < 1000:
                     if self.flip and dis[0] < 0:
                         self.game.projectiles.append([[self.rect().centerx - 7, self.rect().centery], -1.5, 0])
                         # Add Sparks when gun is shot (For left side)

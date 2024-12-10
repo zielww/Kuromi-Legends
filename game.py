@@ -162,7 +162,8 @@ class Game:
                         for i in range(30):
                             angle = random.random() * math.pi * 2
                             speed = random.random() * 5
-                            self.sparks.append(Spark(self.player.rect().center, angle, 2 + random.random(), ))
+                            self.sparks.append(
+                                Spark(self.player.rect().center, angle, 2 + random.random(), (255, 0, 0)))
                             self.particles.append(Particle(self, 'particle', self.player.rect().center,
                                                            velocity=[math.cos(angle + math.pi) * speed * 0.5,
                                                                      math.sin(angle + math.pi) * speed * 0.5],
