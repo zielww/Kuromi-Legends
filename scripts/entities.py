@@ -3,6 +3,7 @@ import math
 import random
 
 from scripts.particle import Particle
+from scripts.spark import Spark
 
 
 class PhysicsEntity:
@@ -210,8 +211,14 @@ class Enemy(PhysicsEntity):
                 if abs(dis[1]) < 16:
                     if self.flip and dis[0] < 0:
                         self.game.projectiles.append([[self.rect().centerx - 7, self.rect().centery], -1.5, 0])
+                        # Add Sparks when gun is shot (For left side)
+                        for i in range(4):
+                            self.game.sparks.append(Spark(self.game.projectiles[-1][0], random.random() - 0.5 + math.pi, 2 + random.random()))
                     if not self.flip and dis[0] > 0:
                         self.game.projectiles.append([[self.rect().centerx + 7, self.rect().centery], 1.5, 0])
+                        # Add Sparks when gun is shot (For right side)
+                        for i in range(4):
+                            self.game.sparks.append(Spark(self.game.projectiles[-1][0], random.random() - 0.5, 2 + random.random()))
         elif random.random() < 0.01:
             self.walking = random.randint(30, 120)
 

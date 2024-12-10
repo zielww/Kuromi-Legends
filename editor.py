@@ -1,7 +1,6 @@
 import sys
 
 import pygame
-from six import moves
 
 from scripts.utils import load_images
 from scripts.tilemap import Tilemap
