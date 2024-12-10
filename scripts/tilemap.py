@@ -36,7 +36,7 @@ class Tilemap:
                 if not keep:
                     self.offgrid_tiles.remove(tile)
 
-        for loc in self.tilemap:
+        for loc in self.tilemap.copy():
             tile = self.tilemap[loc]
             if (tile['type'], tile['variant']) in id_pairs:
                 matches.append(tile.copy())
@@ -47,7 +47,6 @@ class Tilemap:
                     del self.tilemap[loc]
 
         return matches
-
 
     def tiles_around(self, pos):
         tiles = []
@@ -74,6 +73,13 @@ class Tilemap:
         self.tilemap = map_data['tilemap']
         self.tile_size = map_data['tile_size']
         self.offgrid_tiles = map_data['offgrid']
+
+    # Check for tiles affected by physics
+    def solid_check(self, pos):
+        tile_loc = str(int(pos[0] // self.tile_size)) + ';' + str(int(pos[1] // self.tile_size))
+        if tile_loc in self.tilemap:
+            if self.tilemap[tile_loc]['type'] in PHYSICS_TILES:
+                return self.tilemap[tile_loc]
 
     # Check if the tiles around has collision
     def physics_rects_around(self, pos):
@@ -102,8 +108,7 @@ class Tilemap:
     # Render tiles
     def render(self, surf, offset=(0, 0)):
         for tile in self.offgrid_tiles:
-            surf.blit(self.game.assets[tile['type']][tile['variant']],
-                      (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1]))
+            surf.blit(self.game.assets[tile['type']][tile['variant']], (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1]))
 
         # I don't know what the fuck this is (but it's supposed to render only tiles that are visible, increasing performance)
         for x in range(offset[0] // self.tile_size, (offset[0] + surf.get_width()) // self.tile_size + 1):

@@ -31,6 +31,7 @@ class Editor:
             'grass': load_images('tiles/grass'),
             'large_decor': load_images('tiles/large_decor'),
             'stone': load_images('tiles/stone'),
+            'spawners': load_images('tiles/spawners'),
         }
 
         # Movement variable
