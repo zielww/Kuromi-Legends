@@ -115,8 +115,10 @@ class Game:
 
             # Render the enemies
             for enemy in self.enemies.copy():
-                enemy.update(self.tilemap, (0, 0))
+                kill = enemy.update(self.tilemap, (0, 0))
                 enemy.render(self.display, offset=render_scroll)
+                if kill:
+                    self.enemies.remove(enemy)
 
             # Update pos
             self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
@@ -137,7 +139,7 @@ class Game:
                     for i in range(4):
                         self.sparks.append(
                             Spark(projectile[0], random.random() - 0.5 + (math.pi if projectile[1] > 0 else 0),
-                                  2 + random.random()))
+                                  2 + random.random(), ))
                 elif projectile[2] > 360:
                     self.projectiles.remove(projectile)
                 elif abs(self.player.dashing) < 50:
@@ -147,7 +149,7 @@ class Game:
                         for i in range(30):
                             angle = random.random() * math.pi * 2
                             speed = random.random() * 5
-                            self.sparks.append(Spark(self.player.rect().center, angle, 2 + random.random()))
+                            self.sparks.append(Spark(self.player.rect().center, angle, 2 + random.random(), ))
                             self.particles.append(Particle(self, 'particle', self.player.rect().center,
                                                            velocity=[math.cos(angle + math.pi) * speed * 0.5,
                                                                      math.sin(angle + math.pi) * speed * 0.5],
