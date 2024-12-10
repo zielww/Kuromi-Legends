@@ -107,7 +107,9 @@ class Player(PhysicsEntity):
         self.air_time += 1
 
         # Falling death
-        if self.air_time > 180:
+        if self.air_time > 120:
+            if not self.game.dead:
+                self.game.screenshake = max(16, self.game.screenshake)
             self.game.dead += 1
 
         if self.collisions['down']:
@@ -158,10 +160,12 @@ class Player(PhysicsEntity):
         else:
             self.velocity[0] = min(self.velocity[0] + 0.1, 0)
 
+
     # Make the player invisible during dashing
     def render(self, surf, offset=(0, 0)):
         if abs(self.dashing) <= 50:
             super().render(surf, offset=offset)
+
 
     # Player Jump
     def jump(self):
@@ -184,6 +188,7 @@ class Player(PhysicsEntity):
             self.jumps -= 1
             self.air_time = 5
             return True
+
 
     # Player Dash
     def dash(self):
@@ -240,15 +245,17 @@ class Enemy(PhysicsEntity):
         # Add enemy killing
         if abs(self.game.player.dashing) >= 50:
             if self.rect().colliderect(self.game.player.rect()):
+                # Add screenshake when the enemy died
+                self.game.screenshake = max(16, self.game.screenshake)
                 # Visual effects when the enemy is killed
                 for i in range(30):
                     angle = random.random() * math.pi * 2
                     speed = random.random() * 5
                     self.game.sparks.append(Spark(self.rect().center, angle, 2 + random.random(), (255, 0, 0)))
                     self.game.particles.append(Particle(self.game, 'particle', self.rect().center,
-                                                   velocity=[math.cos(angle + math.pi) * speed * 0.5,
-                                                             math.sin(angle + math.pi) * speed * 0.5],
-                                                   frame=random.randint(0, 7)))
+                                                        velocity=[math.cos(angle + math.pi) * speed * 0.5,
+                                                                  math.sin(angle + math.pi) * speed * 0.5],
+                                                        frame=random.randint(0, 7)))
                 self.game.sparks.append(Spark(self.rect().center, 0, 5 + random.random(), (255, 0, 0)))
                 self.game.sparks.append(Spark(self.rect().center, math.pi, 5 + random.random(), (255, 0, 0)))
                 return True

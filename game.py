@@ -65,6 +65,9 @@ class Game:
         # Load one of the pre-made levels
         self.load_level(0)
 
+        # Screen shake values
+        self.screenshake = 0
+
     def load_level(self, map_id):
         self.tilemap.load('data/maps/' + str(map_id) + '.json')
 
@@ -96,6 +99,9 @@ class Game:
         while True:
             # Clear the Screen
             self.display.blit(self.assets['background'], (0, 0))
+
+            # Add screenshake
+            self.screenshake = max(0, self.screenshake - 1)
 
             # Revives the player after 40 frames
             if self.dead:
@@ -158,6 +164,8 @@ class Game:
                         self.projectiles.remove(projectile)
                         # Player death logic
                         self.dead += 1
+                        # Add screenshake when the player died
+                        self.screenshake = max(16, self.screenshake)
                         # Sparks when the projectile hit the player
                         for i in range(30):
                             angle = random.random() * math.pi * 2
@@ -205,8 +213,9 @@ class Game:
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = False
 
+            screenshake_offset = (random.random() * self.screenshake - self.screenshake / 2, random.random() * self.screenshake - self.screenshake / 2)
             # Blit the display into the screen
-            self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
+            self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), screenshake_offset)
             # Method to update the screen every frame
             pygame.display.update()
             self.clock.tick(60)
