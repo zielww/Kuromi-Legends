@@ -49,6 +49,7 @@ class Game:
             'enemy/idle': Animation(load_images('entities/enemy/idle')),
             'enemy/run': Animation(load_images('entities/enemy/run')),
             'gun': load_image('gun.png'),
+            'projectile': load_image('projectile.png'),
         }
 
         # Define Clouds
@@ -75,6 +76,7 @@ class Game:
                 self.enemies.append(Enemy(self, spawner['pos'], (8, 15)))
 
         self.particles = []
+        self.projectiles = []
 
         # Add Camera
         self.scroll = [0, 0]
@@ -113,6 +115,21 @@ class Game:
             self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
             # Render Player
             self.player.render(self.display, offset=render_scroll)
+
+            # Render projectiles
+            # [[x, y], direction, timer]
+            for projectile in self.projectiles.copy():
+                projectile[0][0] += projectile[1]
+                projectile[2] += 1
+                img = self.assets['projectile']
+                self.display.blit(img, (projectile[0][0] - img.get_width() / 2 - render_scroll[0], projectile[0][1] - img.get_height() / 2 - render_scroll[1]))
+                if self.tilemap.solid_check(projectile[0]):
+                    self.projectiles.remove(projectile)
+                elif projectile[2] > 360:
+                    self.projectiles.remove(projectile)
+                elif abs(self.player.dashing) < 50:
+                    if self.player.rect().collidepoint(projectile[0]):
+                        self.projectiles.remove(projectile)
 
             # Render the particles and check if it needs to be removed
             for particle in self.particles.copy():
