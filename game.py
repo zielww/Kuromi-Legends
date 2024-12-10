@@ -60,7 +60,12 @@ class Game:
 
         # Define Tile Map
         self.tilemap = Tilemap(self, tile_size=16)
-        self.tilemap.load('map.json')
+
+        # Load one of the pre-made levels
+        self.load_level(0)
+
+    def load_level(self, map_id):
+        self.tilemap.load('data/maps/' + str(map_id) + '.json')
 
         # Add leaves to trees
         self.leaf_spawners = []
