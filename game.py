@@ -78,6 +78,7 @@ class Game:
         for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1)]):
             if spawner['variant'] == 0:
                 self.player.pos = spawner['pos']
+                self.player.air_time = 0
             else:
                 self.enemies.append(Enemy(self, spawner['pos'], (8, 15)))
 
@@ -88,10 +89,19 @@ class Game:
         # Add Camera
         self.scroll = [0, 0]
 
+        # Allows the user to be dead
+        self.dead = 0
+
     def run(self):
         while True:
             # Clear the Screen
             self.display.blit(self.assets['background'], (0, 0))
+
+            # Revives the player after 40 frames
+            if self.dead:
+                self.dead += 1
+                if self.dead > 40:
+                    self.load_level(0)
 
             # Position the camera in the center of the screen (player)
             self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
@@ -120,10 +130,11 @@ class Game:
                 if kill:
                     self.enemies.remove(enemy)
 
-            # Update pos
-            self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
-            # Render Player
-            self.player.render(self.display, offset=render_scroll)
+            if not self.dead:
+                # Update pos
+                self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
+                # Render Player
+                self.player.render(self.display, offset=render_scroll)
 
             # Render projectiles
             # [[x, y], direction, timer]
@@ -145,6 +156,8 @@ class Game:
                 elif abs(self.player.dashing) < 50:
                     if self.player.rect().collidepoint(projectile[0]):
                         self.projectiles.remove(projectile)
+                        # Player death logic
+                        self.dead += 1
                         # Sparks when the projectile hit the player
                         for i in range(30):
                             angle = random.random() * math.pi * 2
