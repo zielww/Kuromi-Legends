@@ -66,6 +66,7 @@ class Game:
             'hit': pygame.mixer.Sound('data/sfx/hit.wav'),
             'shoot': pygame.mixer.Sound('data/sfx/shoot.wav'),
             'ambience': pygame.mixer.Sound('data/sfx/ambience.wav'),
+            'victory': pygame.mixer.Sound('data/sfx/victory.wav'),
         }
 
         # Change volume of sounds
@@ -74,6 +75,7 @@ class Game:
         self.sfx['hit'].set_volume(0.8)
         self.sfx['shoot'].set_volume(0.3)
         self.sfx['ambience'].set_volume(0.7)
+        self.sfx['victory'].set_volume(0.8)
 
         # Define Clouds
         self.clouds = Clouds(self.assets['clouds'], count=16)
@@ -148,6 +150,8 @@ class Game:
                     # Added limit to levels
                     self.level = min(self.level + 1, len(os.listdir('data/maps')) - 1)
                     self.load_level(self.level)
+                    if self.level == len(os.listdir('data/maps')) - 3:
+                        self.sfx['victory'].play()
             if self.transition < 0:
                 self.transition += 1
 
