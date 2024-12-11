@@ -160,12 +160,30 @@ class Player(PhysicsEntity):
         else:
             self.velocity[0] = min(self.velocity[0] + 0.1, 0)
 
-
     # Make the player invisible during dashing
     def render(self, surf, offset=(0, 0)):
         if abs(self.dashing) <= 50:
             super().render(surf, offset=offset)
 
+    # Added a shoot button, lets see
+    def shoot(self):
+        if self.flip:
+            self.game.sfx['shoot'].play()
+            self.game.player_projectiles.append(
+                [[self.rect().centerx - 7, self.rect().centery], -1.5, 0, self.game.assets['heart'], (255, 192, 203)])
+            # Add Sparks when gun is shot (For left side)
+            for i in range(4):
+                self.game.sparks.append(Spark(self.game.player_projectiles[-1][0], random.random() - 0.5 + math.pi,
+                                              2 + random.random(), (255, 192, 203)))
+        if not self.flip:
+            self.game.sfx['shoot'].play()
+            self.game.player_projectiles.append(
+                [[self.rect().centerx + 7, self.rect().centery], 1.5, 0, self.game.assets['heart'], (255, 192, 203)])
+            # Add Sparks when gun is shot (For right side)
+            for i in range(4):
+                self.game.sparks.append(
+                    Spark(self.game.player_projectiles[-1][0], random.random() - 0.5, 2 + random.random(),
+                          (255, 192, 203)))
 
     # Player Jump
     def jump(self):
@@ -204,7 +222,6 @@ class Player(PhysicsEntity):
                           2 + random.random(), (251, 198, 207)))
             return True
 
-
     # Player Dash
     def dash(self):
         if not self.dashing:
@@ -237,18 +254,23 @@ class Enemy(PhysicsEntity):
                 if abs(dis[1]) or abs(dis[0]) < 1000:
                     if self.flip and dis[0] < 0:
                         self.game.sfx['shoot'].play()
-                        self.game.projectiles.append([[self.rect().centerx - 7, self.rect().centery], -1.5, 0, self.game.assets['projectile'], (86, 68, 54)])
+                        self.game.projectiles.append(
+                            [[self.rect().centerx - 7, self.rect().centery], -1.5, 0, self.game.assets['projectile'],
+                             (86, 68, 54)])
                         # Add Sparks when gun is shot (For left side)
                         for i in range(12):
                             self.game.sparks.append(Spark(self.game.projectiles[-1][0], random.random() - 0.5 + math.pi,
                                                           2 + random.random(), (86, 68, 54)))
                     if not self.flip and dis[0] > 0:
                         self.game.sfx['shoot'].play()
-                        self.game.projectiles.append([[self.rect().centerx + 7, self.rect().centery], 1.5, 0, self.game.assets['projectile'], (86, 68, 54)])
+                        self.game.projectiles.append(
+                            [[self.rect().centerx + 7, self.rect().centery], 1.5, 0, self.game.assets['projectile'],
+                             (86, 68, 54)])
                         # Add Sparks when gun is shot (For right side)
                         for i in range(12):
                             self.game.sparks.append(
-                                Spark(self.game.projectiles[-1][0], random.random() - 0.5, 2 + random.random(), (86, 68, 54)))
+                                Spark(self.game.projectiles[-1][0], random.random() - 0.5, 2 + random.random(),
+                                      (86, 68, 54)))
         elif random.random() < 0.01:
             self.walking = random.randint(30, 120)
 
@@ -279,9 +301,31 @@ class Enemy(PhysicsEntity):
                 self.game.sparks.append(Spark(self.rect().center, math.pi, 5 + random.random(), (255, 0, 0)))
                 return True
 
+        # Add enemy killing from projectiles
+        for projectile in self.game.player_projectiles:
+            if self.rect().collidepoint(projectile[0]):
+                self.game.sfx['hit'].play()
+                # Add screenshake when the enemy died
+                self.game.screenshake = max(16, self.game.screenshake)
+                # Visual effects when the enemy is killed
+                for i in range(30):
+                    angle = random.random() * math.pi * 2
+                    speed = random.random() * 5
+                    self.game.sparks.append(Spark(self.rect().center, angle, 2 + random.random(), (255, 0, 0)))
+                    self.game.particles.append(Particle(self.game, 'particle', self.rect().center,
+                                                        velocity=[math.cos(angle + math.pi) * speed * 0.5,
+                                                                  math.sin(angle + math.pi) * speed * 0.5],
+                                                        frame=random.randint(0, 7)))
+                self.game.sparks.append(Spark(self.rect().center, 0, 5 + random.random(), (255, 0, 0)))
+                self.game.sparks.append(Spark(self.rect().center, math.pi, 5 + random.random(), (255, 0, 0)))
+                self.game.player_projectiles.remove(projectile)
+                return True
+
     def render(self, surf, offset=(0, 0)):
         surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False),
-                  (self.pos[0] - offset[0] + self.anim_offset[0] - 55, self.pos[1] - offset[1] + self.anim_offset[1]  - 65))
+                  (self.pos[0] - offset[0] + self.anim_offset[0] - 55,
+                   self.pos[1] - offset[1] + self.anim_offset[1] - 65))
+
 
 class Goblin(PhysicsEntity):
     def __init__(self, game, pos, size):
@@ -305,18 +349,23 @@ class Goblin(PhysicsEntity):
                 if abs(dis[1]) or abs(dis[0]) < 1000:
                     if self.flip and dis[0] < 0:
                         self.game.sfx['shoot'].play()
-                        self.game.projectiles.append([[self.rect().centerx - 7, self.rect().centery], -1.5, 0, self.game.assets['bomb'], (255, 255, 0)])
+                        self.game.projectiles.append(
+                            [[self.rect().centerx - 7, self.rect().centery], -1.5, 0, self.game.assets['bomb'],
+                             (255, 255, 0)])
                         # Add Sparks when gun is shot (For left side)
                         for i in range(12):
                             self.game.sparks.append(Spark(self.game.projectiles[-1][0], random.random() - 0.5 + math.pi,
                                                           2 + random.random(), (255, 255, 0)))
                     if not self.flip and dis[0] > 0:
                         self.game.sfx['shoot'].play()
-                        self.game.projectiles.append([[self.rect().centerx + 7, self.rect().centery], 1.5, 0, self.game.assets['bomb'], (255, 255, 0)])
+                        self.game.projectiles.append(
+                            [[self.rect().centerx + 7, self.rect().centery], 1.5, 0, self.game.assets['bomb'],
+                             (255, 255, 0)])
                         # Add Sparks when gun is shot (For right side)
                         for i in range(12):
                             self.game.sparks.append(
-                                Spark(self.game.projectiles[-1][0], random.random() - 0.5, 2 + random.random(), (255, 255, 0)))
+                                Spark(self.game.projectiles[-1][0], random.random() - 0.5, 2 + random.random(),
+                                      (255, 255, 0)))
         elif random.random() < 0.01:
             self.walking = random.randint(30, 120)
 
@@ -347,9 +396,31 @@ class Goblin(PhysicsEntity):
                 self.game.sparks.append(Spark(self.rect().center, math.pi, 5 + random.random(), (255, 0, 0)))
                 return True
 
+        # Add enemy killing from projectiles
+        for projectile in self.game.player_projectiles:
+            if self.rect().collidepoint(projectile[0]):
+                self.game.sfx['hit'].play()
+                # Add screenshake when the enemy died
+                self.game.screenshake = max(16, self.game.screenshake)
+                # Visual effects when the enemy is killed
+                for i in range(30):
+                    angle = random.random() * math.pi * 2
+                    speed = random.random() * 5
+                    self.game.sparks.append(Spark(self.rect().center, angle, 2 + random.random(), (255, 0, 0)))
+                    self.game.particles.append(Particle(self.game, 'particle', self.rect().center,
+                                                        velocity=[math.cos(angle + math.pi) * speed * 0.5,
+                                                                  math.sin(angle + math.pi) * speed * 0.5],
+                                                        frame=random.randint(0, 7)))
+                self.game.sparks.append(Spark(self.rect().center, 0, 5 + random.random(), (255, 0, 0)))
+                self.game.sparks.append(Spark(self.rect().center, math.pi, 5 + random.random(), (255, 0, 0)))
+                self.game.player_projectiles.remove(projectile)
+                return True
+
     def render(self, surf, offset=(0, 0)):
         surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False),
-                  (self.pos[0] - offset[0] + self.anim_offset[0] - 35, self.pos[1] - offset[1] + self.anim_offset[1]  - 45))
+                  (self.pos[0] - offset[0] + self.anim_offset[0] - 35,
+                   self.pos[1] - offset[1] + self.anim_offset[1] - 45))
+
 
 class Mushroom(PhysicsEntity):
     def __init__(self, game, pos, size):
@@ -373,18 +444,23 @@ class Mushroom(PhysicsEntity):
                 if abs(dis[1]) or abs(dis[0]) < 1000:
                     if self.flip and dis[0] < 0:
                         self.game.sfx['shoot'].play()
-                        self.game.projectiles.append([[self.rect().centerx - 7, self.rect().centery], -1.5, 0, self.game.assets['orb'], (255, 0, 0)])
+                        self.game.projectiles.append(
+                            [[self.rect().centerx - 7, self.rect().centery], -1.5, 0, self.game.assets['orb'],
+                             (255, 0, 0)])
                         # Add Sparks when gun is shot (For left side)
                         for i in range(12):
                             self.game.sparks.append(Spark(self.game.projectiles[-1][0], random.random() - 0.5 + math.pi,
                                                           2 + random.random(), (255, 0, 0)))
                     if not self.flip and dis[0] > 0:
                         self.game.sfx['shoot'].play()
-                        self.game.projectiles.append([[self.rect().centerx + 7, self.rect().centery], 1.5, 0, self.game.assets['orb'], (255, 0, 0)])
+                        self.game.projectiles.append(
+                            [[self.rect().centerx + 7, self.rect().centery], 1.5, 0, self.game.assets['orb'],
+                             (255, 0, 0)])
                         # Add Sparks when gun is shot (For right side)
                         for i in range(12):
                             self.game.sparks.append(
-                                Spark(self.game.projectiles[-1][0], random.random() - 0.5, 2 + random.random(), (255, 0, 0)))
+                                Spark(self.game.projectiles[-1][0], random.random() - 0.5, 2 + random.random(),
+                                      (255, 0, 0)))
         elif random.random() < 0.01:
             self.walking = random.randint(30, 120)
 
@@ -415,9 +491,31 @@ class Mushroom(PhysicsEntity):
                 self.game.sparks.append(Spark(self.rect().center, math.pi, 5 + random.random(), (255, 0, 0)))
                 return True
 
+        # Add enemy killing from projectiles
+        for projectile in self.game.player_projectiles:
+            if self.rect().collidepoint(projectile[0]):
+                self.game.sfx['hit'].play()
+                # Add screenshake when the enemy died
+                self.game.screenshake = max(16, self.game.screenshake)
+                # Visual effects when the enemy is killed
+                for i in range(30):
+                    angle = random.random() * math.pi * 2
+                    speed = random.random() * 5
+                    self.game.sparks.append(Spark(self.rect().center, angle, 2 + random.random(), (255, 0, 0)))
+                    self.game.particles.append(Particle(self.game, 'particle', self.rect().center,
+                                                        velocity=[math.cos(angle + math.pi) * speed * 0.5,
+                                                                  math.sin(angle + math.pi) * speed * 0.5],
+                                                        frame=random.randint(0, 7)))
+                self.game.sparks.append(Spark(self.rect().center, 0, 5 + random.random(), (255, 0, 0)))
+                self.game.sparks.append(Spark(self.rect().center, math.pi, 5 + random.random(), (255, 0, 0)))
+                self.game.player_projectiles.remove(projectile)
+                return True
+
     def render(self, surf, offset=(0, 0)):
         surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False),
-                  (self.pos[0] - offset[0] + self.anim_offset[0] - 35, self.pos[1] - offset[1] + self.anim_offset[1]  - 45))
+                  (self.pos[0] - offset[0] + self.anim_offset[0] - 35,
+                   self.pos[1] - offset[1] + self.anim_offset[1] - 45))
+
 
 class Skeleton(PhysicsEntity):
     def __init__(self, game, pos, size):
@@ -465,7 +563,27 @@ class Skeleton(PhysicsEntity):
             self.game.sparks.append(Spark(self.rect().center, 0, 5 + random.random(), (255, 0, 0)))
             self.game.sparks.append(Spark(self.rect().center, math.pi, 5 + random.random(), (255, 0, 0)))
 
+        # Add enemy killing from projectiles
+        for projectile in self.game.player_projectiles:
+            if self.rect().collidepoint(projectile[0]):
+                self.game.sfx['hit'].play()
+                # Add screenshake when the enemy died
+                self.game.screenshake = max(16, self.game.screenshake)
+                # Visual effects when the enemy is killed
+                for i in range(30):
+                    angle = random.random() * math.pi * 2
+                    speed = random.random() * 5
+                    self.game.sparks.append(Spark(self.rect().center, angle, 2 + random.random(), (255, 0, 0)))
+                    self.game.particles.append(Particle(self.game, 'particle', self.rect().center,
+                                                        velocity=[math.cos(angle + math.pi) * speed * 0.5,
+                                                                  math.sin(angle + math.pi) * speed * 0.5],
+                                                        frame=random.randint(0, 7)))
+                self.game.sparks.append(Spark(self.rect().center, 0, 5 + random.random(), (255, 0, 0)))
+                self.game.sparks.append(Spark(self.rect().center, math.pi, 5 + random.random(), (255, 0, 0)))
+                self.game.player_projectiles.remove(projectile)
+                return True
+
     def render(self, surf, offset=(0, 0)):
         surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False),
-                  (self.pos[0] - offset[0] + self.anim_offset[0] - 25, self.pos[1] - offset[1] + self.anim_offset[1]  - 35))
-
+                  (self.pos[0] - offset[0] + self.anim_offset[0] - 25,
+                   self.pos[1] - offset[1] + self.anim_offset[1] - 35))

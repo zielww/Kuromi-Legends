@@ -55,6 +55,7 @@ class Game:
             'projectile': scaler('projectile.png', (12, 12)),
             'bomb': scaler('bomb.png', (12, 12)),
             'orb': scaler('orb.png', (12, 12)),
+            'heart': scaler('heart.png', (12, 12)),
             'player/idle': Animation(scaled_loader('entities/player/idle', ), img_dur=8),
             'player/run': Animation(scaled_loader('entities/player/run'), img_dur=4),
             'player/jump': Animation(scaled_loader('entities/player/jump')),
@@ -137,6 +138,7 @@ class Game:
 
         self.particles = []
         self.projectiles = []
+        self.player_projectiles = []
         self.sparks = []
 
         # Add Camera
@@ -262,6 +264,41 @@ class Game:
                                                                      math.sin(angle + math.pi) * speed * 0.5],
                                                            frame=random.randint(0, 7)))
 
+            # Render Player Projectiles
+            for projectile in self.player_projectiles.copy():
+                projectile[0][0] += projectile[1]
+                projectile[2] += 1
+                img = projectile[3]
+                color = projectile[4]
+                self.display.blit(img, (projectile[0][0] - img.get_width() / 2 - render_scroll[0],
+                                        projectile[0][1] - img.get_height() / 2 - render_scroll[1]))
+                if self.tilemap.solid_check(projectile[0]):
+                    self.player_projectiles.remove(projectile)
+                    # Spawn spark when a wall is hit
+                    for i in range(12):
+                        self.sparks.append(
+                            Spark(projectile[0], random.random() - 0.5 + (math.pi if projectile[1] > 0 else 0),
+                                  2 + random.random(), color))
+                elif projectile[2] > 360:
+                    self.player_projectiles.remove(projectile)
+                elif abs(self.player.dashing) < 50:
+                    if self.player.rect().collidepoint(projectile[0]):
+                        self.player_projectiles.remove(projectile)
+                        # Add sound when hit
+                        self.sfx['hit'].play()
+                        # Add screenshake when the player died
+                        self.screenshake = max(16, self.screenshake)
+                        # Sparks when the projectile hit the player
+                        for i in range(30):
+                            angle = random.random() * math.pi * 2
+                            speed = random.random() * 5
+                            self.sparks.append(
+                                Spark(self.player.rect().center, angle, 2 + random.random(), (255, 0, 0)))
+                            self.particles.append(Particle(self, 'particle', self.player.rect().center,
+                                                           velocity=[math.cos(angle + math.pi) * speed * 0.5,
+                                                                     math.sin(angle + math.pi) * speed * 0.5],
+                                                           frame=random.randint(0, 7)))
+
             # Render the sparks
             for spark in self.sparks.copy():
                 kill = spark.update()
@@ -301,6 +338,8 @@ class Game:
                             self.screenshake = max(5, self.screenshake)
                     if event.key == pygame.K_x:
                         self.player.dash()
+                    if event.key == pygame.K_c:
+                        self.player.shoot()
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a or event.key == pygame.K_LEFT:
                         self.movement[0] = False
