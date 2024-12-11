@@ -193,6 +193,7 @@ class Player(PhysicsEntity):
     # Player Dash
     def dash(self):
         if not self.dashing:
+            self.game.sfx['dash'].play()
             if self.flip:
                 self.dashing = -60
             else:
@@ -220,12 +221,14 @@ class Enemy(PhysicsEntity):
                 dis = (self.game.player.pos[0] - self.pos[0], self.game.player.pos[1] - self.pos[1])
                 if abs(dis[1]) or abs(dis[0]) < 1000:
                     if self.flip and dis[0] < 0:
+                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append([[self.rect().centerx - 7, self.rect().centery], -1.5, 0])
                         # Add Sparks when gun is shot (For left side)
                         for i in range(4):
                             self.game.sparks.append(Spark(self.game.projectiles[-1][0], random.random() - 0.5 + math.pi,
                                                           2 + random.random()))
                     if not self.flip and dis[0] > 0:
+                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append([[self.rect().centerx + 7, self.rect().centery], 1.5, 0])
                         # Add Sparks when gun is shot (For right side)
                         for i in range(4):
@@ -245,6 +248,7 @@ class Enemy(PhysicsEntity):
         # Add enemy killing
         if abs(self.game.player.dashing) >= 50:
             if self.rect().colliderect(self.game.player.rect()):
+                self.game.sfx['hit'].play()
                 # Add screenshake when the enemy died
                 self.game.screenshake = max(16, self.game.screenshake)
                 # Visual effects when the enemy is killed

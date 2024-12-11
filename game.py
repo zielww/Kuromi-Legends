@@ -59,6 +59,22 @@ class Game:
             'projectile': load_image('projectile.png'),
         }
 
+        # Initialize Sound effects
+        self.sfx = {
+            'jump': pygame.mixer.Sound('data/sfx/jump.wav'),
+            'dash': pygame.mixer.Sound('data/sfx/dash.wav'),
+            'hit': pygame.mixer.Sound('data/sfx/hit.wav'),
+            'shoot': pygame.mixer.Sound('data/sfx/shoot.wav'),
+            'ambience': pygame.mixer.Sound('data/sfx/ambience.wav'),
+        }
+
+        # Change volume of sounds
+        self.sfx['jump'].set_volume(0.2)
+        self.sfx['dash'].set_volume(0.4)
+        self.sfx['hit'].set_volume(0.8)
+        self.sfx['shoot'].set_volume(0.3)
+        self.sfx['ambience'].set_volume(0.7)
+
         # Define Clouds
         self.clouds = Clouds(self.assets['clouds'], count=16)
 
@@ -106,6 +122,13 @@ class Game:
         self.transition = -30
 
     def run(self):
+        # Add music
+        pygame.mixer.music.load('data/music.wav')
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+
+        self.sfx['ambience'].play(-1)
+
         while True:
             # Add transparency to display
             self.display.fill((0, 0, 0, 0))
@@ -188,6 +211,8 @@ class Game:
                         self.projectiles.remove(projectile)
                         # Player death logic
                         self.dead += 1
+                        # Add sound when hit
+                        self.sfx['hit'].play()
                         # Add screenshake when the player died
                         self.screenshake = max(16, self.screenshake)
                         # Sparks when the projectile hit the player
@@ -234,7 +259,8 @@ class Game:
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = True
                     if event.key == pygame.K_UP:
-                        self.player.jump()
+                        if self.player.jump():
+                            self.sfx['jump'].play()
                     if event.key == pygame.K_x:
                         self.player.dash()
                 if event.type == pygame.KEYUP:
