@@ -6,7 +6,7 @@ import math
 import random
 
 from scripts.utils import load_image, load_images, Animation, scaled_loader, scaler
-from scripts.entities import Player, Enemy, Goblin
+from scripts.entities import Player, Enemy, Goblin, Mushroom
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 from scripts.particle import Particle
@@ -54,6 +54,7 @@ class Game:
             'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop=False),
             'projectile': scaler('projectile.png', (12, 12)),
             'bomb': scaler('bomb.png', (12, 12)),
+            'orb': scaler('orb.png', (12, 12)),
             'player/idle': Animation(scaled_loader('entities/player/idle', ), img_dur=8),
             'player/run': Animation(scaled_loader('entities/player/run'), img_dur=4),
             'player/jump': Animation(scaled_loader('entities/player/jump')),
@@ -63,6 +64,8 @@ class Game:
             'enemy/run': Animation(scaled_loader('entities/enemy/run', (128, 128))),
             'goblin/idle': Animation(scaled_loader('entities/goblin/idle', (90, 90)), img_dur=120),
             'goblin/run': Animation(scaled_loader('entities/goblin/run', (90, 90)), img_dur=10),
+            'mushroom/idle': Animation(scaled_loader('entities/mushroom/idle', (90, 90)), img_dur=120),
+            'mushroom/run': Animation(scaled_loader('entities/mushroom/run', (90, 90)), img_dur=10),
         }
 
         # Initialize Sound effects
@@ -117,7 +120,7 @@ class Game:
 
         # Player and enemy spawners
         self.enemies = []
-        for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1), ('spawners', 2)]):
+        for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1), ('spawners', 2), ('spawners', 3)]):
             if spawner['variant'] == 0:
                 self.player.pos = spawner['pos']
                 self.player.air_time = 0
@@ -125,6 +128,8 @@ class Game:
                 self.enemies.append(Enemy(self, spawner['pos'], (8, 15)))
             elif spawner['variant'] == 2:
                 self.enemies.append(Goblin(self, spawner['pos'], (8, 15)))
+            elif spawner['variant'] == 3:
+                self.enemies.append(Mushroom(self, spawner['pos'], (8, 15)))
 
         self.particles = []
         self.projectiles = []
