@@ -5,9 +5,7 @@ import pygame
 import math
 import random
 
-from selenium.webdriver.common.devtools.v85.audits import disable
-
-from scripts.utils import load_image, load_images, Animation
+from scripts.utils import load_image, load_images, Animation, scaled_loader
 from scripts.entities import PhysicsEntity, Player, Enemy
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
@@ -24,13 +22,13 @@ class Game:
 
         # Change window resolution
         self.fullscreen = False
-        self.screen = pygame.display.set_mode((1280, 720))
+        self.screen = pygame.display.set_mode((640, 480))
 
         # Initialize second surface for rendering (used for asset scaling)
-        self.display = pygame.Surface((640, 360), pygame.SRCALPHA)
+        self.display = pygame.Surface((320, 240), pygame.SRCALPHA)
 
         # Display for outlines
-        self.display_2 = pygame.Surface((640, 360))
+        self.display_2 = pygame.Surface((320, 240))
 
         # initialize game clock
         self.clock = pygame.time.Clock()
@@ -46,10 +44,12 @@ class Game:
             'stone': load_images('tiles/stone'),
             'player': load_image('entities/player.png'),
             'background': load_image('background.png'),
+            'background_0': load_image('background_0.png'),
+            'background_1': load_image('background_1.png'),
             'clouds': load_images('clouds'),
-            'player/idle': Animation(load_images('entities/player/idle'), img_dur=6),
-            'player/run': Animation(load_images('entities/player/run'), img_dur=4),
-            'player/jump': Animation(load_images('entities/player/jump')),
+            'player/idle': Animation(scaled_loader('entities/player/idle'), img_dur=8),
+            'player/run': Animation(scaled_loader('entities/player/run'), img_dur=4),
+            'player/jump': Animation(scaled_loader('entities/player/jump')),
             'player/slide': Animation(load_images('entities/player/slide')),
             'player/wall_slide': Animation(load_images('entities/player/wall_slide')),
             'particle/leaf': Animation(load_images('particles/leaf'), img_dur=20, loop=False),
@@ -139,7 +139,9 @@ class Game:
             # Add transparency to display
             self.display.fill((0, 0, 0, 0))
             # Clear the Screen
-            self.display_2.blit(self.assets['background'], (0, 0))
+            self.display_2.blit(pygame.transform.scale(self.assets['background'], (320, 240)), (0, 0))
+            self.display_2.blit(pygame.transform.scale(self.assets['background_0'], (320, 240)), (0, 0))
+            self.display_2.blit(pygame.transform.scale(self.assets['background_1'], (320, 240)), (0, 0))
 
             # Add screenshake
             self.screenshake = max(0, self.screenshake - 1)
