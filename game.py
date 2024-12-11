@@ -54,9 +54,8 @@ class Game:
             'player/wall_slide': Animation(scaled_loader('entities/player/wall_slide')),
             'particle/leaf': Animation(load_images('particles/leaf'), img_dur=20, loop=False),
             'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop=False),
-            'enemy/idle': Animation(load_images('entities/enemy/idle')),
-            'enemy/run': Animation(load_images('entities/enemy/run')),
-            'gun': load_image('gun.png'),
+            'enemy/idle': Animation(scaled_loader('entities/enemy/idle', (128, 128))),
+            'enemy/run': Animation(scaled_loader('entities/enemy/run', (128, 128))),
             'projectile': load_image('projectile.png'),
         }
 
@@ -280,7 +279,7 @@ class Game:
                     if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                         self.movement[1] = False
 
-                #Mouse controls
+                # Mouse controls
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         self.clicking = True
