@@ -1,6 +1,7 @@
 import os
 
 import pygame
+import numpy as np
 
 BASE_IMG_PATH = 'data/images/'
 
@@ -18,7 +19,7 @@ def load_images(path):
     return images
 
 
-def scaler(path, dimensions):
+def scaler(path, dimensions=(14,18)):
     img = pygame.transform.scale(pygame.image.load(BASE_IMG_PATH + path).convert(), dimensions)
     img.set_colorkey((0, 0, 0))
     return img

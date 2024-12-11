@@ -175,18 +175,33 @@ class Player(PhysicsEntity):
                 self.velocity[1] = -2.5
                 self.air_time = 5
                 self.jumps = max(0, self.jumps - 1)
+                # Add sparks when jumping
+                for i in range(3):
+                    self.game.sparks.append(
+                        Spark(self.pos, random.random() - 0.1 + (math.pi / 2 if self.pos[1] > 0 else 0),
+                              2 + random.random(), (255, 255, 255)))
                 return True
             elif not self.flip and self.last_movement[0] > 0:
                 self.velocity[0] = -3.5
                 self.velocity[1] = -2.5
                 self.air_time = 5
                 self.jumps = max(0, self.jumps - 1)
+                # Add sparks when jumping
+                for i in range(3):
+                    self.game.sparks.append(
+                        Spark(self.pos, random.random() - 0.1 + (math.pi / 2 if self.pos[1] > 0 else 0),
+                              2 + random.random(), (255, 255, 255)))
                 return True
 
         elif self.jumps:
             self.velocity[1] = -3
             self.jumps -= 1
             self.air_time = 5
+            # Add sparks when jumping
+            for i in range(3):
+                self.game.sparks.append(
+                    Spark(self.pos, random.random() - 0.1 + (math.pi / 2 if self.pos[1] > 0 else 0),
+                          2 + random.random(), (255, 255, 255)))
             return True
 
 
@@ -224,16 +239,16 @@ class Enemy(PhysicsEntity):
                         self.game.sfx['shoot'].play()
                         self.game.projectiles.append([[self.rect().centerx - 7, self.rect().centery], -1.5, 0])
                         # Add Sparks when gun is shot (For left side)
-                        for i in range(4):
+                        for i in range(12):
                             self.game.sparks.append(Spark(self.game.projectiles[-1][0], random.random() - 0.5 + math.pi,
-                                                          2 + random.random()))
+                                                          2 + random.random(), (86, 68, 54)))
                     if not self.flip and dis[0] > 0:
                         self.game.sfx['shoot'].play()
                         self.game.projectiles.append([[self.rect().centerx + 7, self.rect().centery], 1.5, 0])
                         # Add Sparks when gun is shot (For right side)
-                        for i in range(4):
+                        for i in range(12):
                             self.game.sparks.append(
-                                Spark(self.game.projectiles[-1][0], random.random() - 0.5, 2 + random.random()))
+                                Spark(self.game.projectiles[-1][0], random.random() - 0.5, 2 + random.random(), (86, 68, 54)))
         elif random.random() < 0.01:
             self.walking = random.randint(30, 120)
 

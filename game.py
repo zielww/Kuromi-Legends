@@ -5,8 +5,8 @@ import pygame
 import math
 import random
 
-from scripts.utils import load_image, load_images, Animation, scaled_loader
-from scripts.entities import PhysicsEntity, Player, Enemy
+from scripts.utils import load_image, load_images, Animation, scaled_loader, scaler
+from scripts.entities import Player, Enemy
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 from scripts.particle import Particle
@@ -21,7 +21,6 @@ class Game:
         pygame.display.set_caption('Onegai My Kuromi')
 
         # Change window resolution
-        self.fullscreen = False
         self.screen = pygame.display.set_mode((640, 480))
 
         # Initialize second surface for rendering (used for asset scaling)
@@ -47,7 +46,7 @@ class Game:
             'background_0': load_image('background_0.png'),
             'background_1': load_image('background_1.png'),
             'clouds': load_images('clouds'),
-            'player/idle': Animation(scaled_loader('entities/player/idle'), img_dur=8),
+            'player/idle': Animation(scaled_loader('entities/player/idle', ), img_dur=8),
             'player/run': Animation(scaled_loader('entities/player/run'), img_dur=4),
             'player/jump': Animation(scaled_loader('entities/player/jump')),
             'player/slide': Animation(scaled_loader('entities/player/slide')),
@@ -56,7 +55,7 @@ class Game:
             'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop=False),
             'enemy/idle': Animation(scaled_loader('entities/enemy/idle', (128, 128))),
             'enemy/run': Animation(scaled_loader('entities/enemy/run', (128, 128))),
-            'projectile': load_image('projectile.png'),
+            'projectile': scaler('projectile.png', (12, 12)),
         }
 
         # Initialize Sound effects
@@ -67,6 +66,8 @@ class Game:
             'shoot': pygame.mixer.Sound('data/sfx/shoot.wav'),
             'ambience': pygame.mixer.Sound('data/sfx/ambience.wav'),
             'victory': pygame.mixer.Sound('data/sfx/victory.wav'),
+            'roar': pygame.mixer.Sound('data/sfx/roar.wav'),
+            'final': pygame.mixer.Sound('data/sfx/final.wav'),
         }
 
         # Change volume of sounds
@@ -76,6 +77,8 @@ class Game:
         self.sfx['shoot'].set_volume(0.3)
         self.sfx['ambience'].set_volume(0.7)
         self.sfx['victory'].set_volume(0.8)
+        self.sfx['roar'].set_volume(0.5)
+        self.sfx['final'].set_volume(0.7)
 
         # Define Clouds
         self.clouds = Clouds(self.assets['clouds'], count=16)
@@ -154,6 +157,9 @@ class Game:
                     self.load_level(self.level)
                     if self.level == len(os.listdir('data/maps')) - 1:
                         self.sfx['victory'].play()
+                    elif self.level == len(os.listdir('data/maps')) - 2:
+                        self.sfx['roar'].play()
+                        self.sfx['final'].play(-1)
             if self.transition < 0:
                 self.transition += 1
 
@@ -209,10 +215,10 @@ class Game:
                 if self.tilemap.solid_check(projectile[0]):
                     self.projectiles.remove(projectile)
                     # Spawn spark when a wall is hit
-                    for i in range(4):
+                    for i in range(12):
                         self.sparks.append(
                             Spark(projectile[0], random.random() - 0.5 + (math.pi if projectile[1] > 0 else 0),
-                                  2 + random.random(), ))
+                                  2 + random.random(), (86, 68, 54)))
                 elif projectile[2] > 360:
                     self.projectiles.remove(projectile)
                 elif abs(self.player.dashing) < 50:
@@ -271,6 +277,7 @@ class Game:
                     if event.key == pygame.K_w or event.key == pygame.K_SPACE:
                         if self.player.jump():
                             self.sfx['jump'].play()
+                            self.screenshake = max(5, self.screenshake)
                     if event.key == pygame.K_x:
                         self.player.dash()
                 if event.type == pygame.KEYUP:
@@ -308,6 +315,4 @@ class Game:
             pygame.display.update()
             self.clock.tick(60)
 
-
-# Initialize the Game
 Game().run()
