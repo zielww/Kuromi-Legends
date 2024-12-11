@@ -41,6 +41,10 @@ class Game:
             'grass': load_images('tiles/grass'),
             'large_decor': load_images('tiles/large_decor'),
             'stone': load_images('tiles/stone'),
+            'spawners': load_images('tiles/spawners'),
+            'back_dirt': load_images('tiles/back_dirt'),
+            'boulder': load_images('tiles/boulder'),
+            'dirt': load_images('tiles/dirt'),
             'player': load_image('entities/player.png'),
             'background': load_image('background.png'),
             'background_0': load_image('background_0.png'),
@@ -87,7 +91,7 @@ class Game:
         self.player = Player(self, (50, 50), (8, 15))
 
         # Define Tile Map
-        self.tilemap = Tilemap(self, tile_size=16)
+        self.tilemap = Tilemap(self, tile_size=14)
 
         # Level variable for level transition
         self.level = 0
@@ -104,8 +108,9 @@ class Game:
 
         # Add leaves to trees
         self.leaf_spawners = []
-        for tree in self.tilemap.extract([('large_decor', 2)], keep=True):
-            self.leaf_spawners.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
+        for i in range(2, 5):
+            for tree in self.tilemap.extract([('large_decor', i)], keep=True):
+                self.leaf_spawners.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
 
         # Player and enemy spawners
         self.enemies = []

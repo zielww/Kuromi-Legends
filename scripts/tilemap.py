@@ -15,12 +15,12 @@ AUTOTILE_MAP = {
 }
 
 NEIGHBOR_OFFSETS = [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (0, 0), (-1, 1), (0, 1), (1, 1)]
-PHYSICS_TILES = {'grass', 'stone'}
-AUTOTILE_TYPES = {'grass', 'stone'}
+PHYSICS_TILES = {'grass', 'stone', 'boulder'}
+AUTOTILE_TYPES = {'grass', 'stone', 'back_dirt'}
 
 
 class Tilemap:
-    def __init__(self, game, tile_size=16):
+    def __init__(self, game, tile_size=14):
         self.game = game
         self.tile_size = tile_size
         self.tilemap = {}

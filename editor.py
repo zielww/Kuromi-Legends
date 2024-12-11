@@ -31,13 +31,16 @@ class Editor:
             'large_decor': load_images('tiles/large_decor'),
             'stone': load_images('tiles/stone'),
             'spawners': load_images('tiles/spawners'),
+            'back_dirt': load_images('tiles/back_dirt'),
+            'boulder': load_images('tiles/boulder'),
+            'dirt': load_images('tiles/dirt'),
         }
 
         # Movement variable
         self.movement = [False, False, False, False]
 
         # Define Tile Map
-        self.tilemap = Tilemap(self, tile_size=16)
+        self.tilemap = Tilemap(self, tile_size=14)
 
         try:
             self.tilemap.load('map.json')
