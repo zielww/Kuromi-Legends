@@ -21,7 +21,7 @@ class Game:
         pygame.display.set_caption('Onegai My Kuromi')
 
         # Change window resolution
-        self.screen = pygame.display.set_mode((640, 480))
+        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
         # Initialize second surface for rendering (used for asset scaling)
         self.display = pygame.Surface((320, 240), pygame.SRCALPHA)
