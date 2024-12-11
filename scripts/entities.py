@@ -237,14 +237,14 @@ class Enemy(PhysicsEntity):
                 if abs(dis[1]) or abs(dis[0]) < 1000:
                     if self.flip and dis[0] < 0:
                         self.game.sfx['shoot'].play()
-                        self.game.projectiles.append([[self.rect().centerx - 7, self.rect().centery], -1.5, 0])
+                        self.game.projectiles.append([[self.rect().centerx - 7, self.rect().centery], -1.5, 0, self.game.assets['projectile'], (86, 68, 54)])
                         # Add Sparks when gun is shot (For left side)
                         for i in range(12):
                             self.game.sparks.append(Spark(self.game.projectiles[-1][0], random.random() - 0.5 + math.pi,
                                                           2 + random.random(), (86, 68, 54)))
                     if not self.flip and dis[0] > 0:
                         self.game.sfx['shoot'].play()
-                        self.game.projectiles.append([[self.rect().centerx + 7, self.rect().centery], 1.5, 0])
+                        self.game.projectiles.append([[self.rect().centerx + 7, self.rect().centery], 1.5, 0, self.game.assets['projectile'], (86, 68, 54)])
                         # Add Sparks when gun is shot (For right side)
                         for i in range(12):
                             self.game.sparks.append(
@@ -282,4 +282,72 @@ class Enemy(PhysicsEntity):
     def render(self, surf, offset=(0, 0)):
         surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False),
                   (self.pos[0] - offset[0] + self.anim_offset[0] - 55, self.pos[1] - offset[1] + self.anim_offset[1]  - 65))
+
+class Goblin(PhysicsEntity):
+    def __init__(self, game, pos, size):
+        super().__init__(game, 'goblin', pos, size)
+
+        self.walking = 0
+
+    def update(self, tilemap, movement=(0, 0)):
+        # Enemy Pathing Logic
+        if self.walking:
+            if tilemap.solid_check((self.rect().centerx + (-7 if self.flip else 7), self.pos[1] + 23)):
+                if self.collisions['right'] or self.collisions['left']:
+                    self.flip = not self.flip
+                else:
+                    movement = (movement[0] - 0.5 if self.flip else 0.5, movement[1])
+            else:
+                self.flip = not self.flip
+            self.walking = max(0, self.walking - 1)
+            if not self.walking:
+                dis = (self.game.player.pos[0] - self.pos[0], self.game.player.pos[1] - self.pos[1])
+                if abs(dis[1]) or abs(dis[0]) < 1000:
+                    if self.flip and dis[0] < 0:
+                        self.game.sfx['shoot'].play()
+                        self.game.projectiles.append([[self.rect().centerx - 7, self.rect().centery], -1.5, 0, self.game.assets['bomb'], (255, 255, 0)])
+                        # Add Sparks when gun is shot (For left side)
+                        for i in range(12):
+                            self.game.sparks.append(Spark(self.game.projectiles[-1][0], random.random() - 0.5 + math.pi,
+                                                          2 + random.random(), (255, 255, 0)))
+                    if not self.flip and dis[0] > 0:
+                        self.game.sfx['shoot'].play()
+                        self.game.projectiles.append([[self.rect().centerx + 7, self.rect().centery], 1.5, 0, self.game.assets['bomb'], (255, 255, 0)])
+                        # Add Sparks when gun is shot (For right side)
+                        for i in range(12):
+                            self.game.sparks.append(
+                                Spark(self.game.projectiles[-1][0], random.random() - 0.5, 2 + random.random(), (255, 255, 0)))
+        elif random.random() < 0.01:
+            self.walking = random.randint(30, 120)
+
+        super().update(tilemap, movement=movement)
+
+        # Set enemy animation
+        if movement[0] != 0:
+            self.set_action('run')
+        else:
+            self.set_action('idle')
+
+        # Add enemy killing
+        if abs(self.game.player.dashing) >= 50:
+            if self.rect().colliderect(self.game.player.rect()):
+                self.game.sfx['hit'].play()
+                # Add screenshake when the enemy died
+                self.game.screenshake = max(16, self.game.screenshake)
+                # Visual effects when the enemy is killed
+                for i in range(30):
+                    angle = random.random() * math.pi * 2
+                    speed = random.random() * 5
+                    self.game.sparks.append(Spark(self.rect().center, angle, 2 + random.random(), (255, 0, 0)))
+                    self.game.particles.append(Particle(self.game, 'particle', self.rect().center,
+                                                        velocity=[math.cos(angle + math.pi) * speed * 0.5,
+                                                                  math.sin(angle + math.pi) * speed * 0.5],
+                                                        frame=random.randint(0, 7)))
+                self.game.sparks.append(Spark(self.rect().center, 0, 5 + random.random(), (255, 0, 0)))
+                self.game.sparks.append(Spark(self.rect().center, math.pi, 5 + random.random(), (255, 0, 0)))
+                return True
+
+    def render(self, surf, offset=(0, 0)):
+        surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False),
+                  (self.pos[0] - offset[0] + self.anim_offset[0] - 35, self.pos[1] - offset[1] + self.anim_offset[1]  - 45))
 

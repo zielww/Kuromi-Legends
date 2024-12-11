@@ -6,7 +6,7 @@ import math
 import random
 
 from scripts.utils import load_image, load_images, Animation, scaled_loader, scaler
-from scripts.entities import Player, Enemy
+from scripts.entities import Player, Enemy, Goblin
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 from scripts.particle import Particle
@@ -50,16 +50,19 @@ class Game:
             'background_0': load_image('background_0.png'),
             'background_1': load_image('background_1.png'),
             'clouds': load_images('clouds'),
+            'particle/leaf': Animation(load_images('particles/leaf'), img_dur=20, loop=False),
+            'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop=False),
+            'projectile': scaler('projectile.png', (12, 12)),
+            'bomb': scaler('bomb.png', (12, 12)),
             'player/idle': Animation(scaled_loader('entities/player/idle', ), img_dur=8),
             'player/run': Animation(scaled_loader('entities/player/run'), img_dur=4),
             'player/jump': Animation(scaled_loader('entities/player/jump')),
             'player/slide': Animation(scaled_loader('entities/player/slide')),
             'player/wall_slide': Animation(scaled_loader('entities/player/wall_slide')),
-            'particle/leaf': Animation(load_images('particles/leaf'), img_dur=20, loop=False),
-            'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop=False),
             'enemy/idle': Animation(scaled_loader('entities/enemy/idle', (128, 128))),
             'enemy/run': Animation(scaled_loader('entities/enemy/run', (128, 128))),
-            'projectile': scaler('projectile.png', (12, 12)),
+            'goblin/idle': Animation(scaled_loader('entities/goblin/idle', (90, 90)), img_dur=120),
+            'goblin/run': Animation(scaled_loader('entities/goblin/run', (90, 90)), img_dur=10),
         }
 
         # Initialize Sound effects
@@ -78,7 +81,7 @@ class Game:
         self.sfx['jump'].set_volume(0.2)
         self.sfx['dash'].set_volume(0.4)
         self.sfx['hit'].set_volume(0.8)
-        self.sfx['shoot'].set_volume(0.3)
+        self.sfx['shoot'].set_volume(0.2)
         self.sfx['ambience'].set_volume(0.7)
         self.sfx['victory'].set_volume(0.8)
         self.sfx['roar'].set_volume(0.5)
@@ -114,12 +117,14 @@ class Game:
 
         # Player and enemy spawners
         self.enemies = []
-        for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1)]):
+        for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1), ('spawners', 2)]):
             if spawner['variant'] == 0:
                 self.player.pos = spawner['pos']
                 self.player.air_time = 0
-            else:
+            elif spawner['variant'] == 1:
                 self.enemies.append(Enemy(self, spawner['pos'], (8, 15)))
+            elif spawner['variant'] == 2:
+                self.enemies.append(Goblin(self, spawner['pos'], (8, 15)))
 
         self.particles = []
         self.projectiles = []
@@ -133,6 +138,7 @@ class Game:
 
         # Transition variable
         self.transition = -30
+
 
     def run(self):
         # Add music
@@ -214,7 +220,8 @@ class Game:
             for projectile in self.projectiles.copy():
                 projectile[0][0] += projectile[1]
                 projectile[2] += 1
-                img = self.assets['projectile']
+                img = projectile[3]
+                color = projectile[4]
                 self.display.blit(img, (projectile[0][0] - img.get_width() / 2 - render_scroll[0],
                                         projectile[0][1] - img.get_height() / 2 - render_scroll[1]))
                 if self.tilemap.solid_check(projectile[0]):
@@ -223,7 +230,7 @@ class Game:
                     for i in range(12):
                         self.sparks.append(
                             Spark(projectile[0], random.random() - 0.5 + (math.pi if projectile[1] > 0 else 0),
-                                  2 + random.random(), (86, 68, 54)))
+                                  2 + random.random(), color))
                 elif projectile[2] > 360:
                     self.projectiles.remove(projectile)
                 elif abs(self.player.dashing) < 50:
@@ -319,5 +326,6 @@ class Game:
             # Method to update the screen every frame
             pygame.display.update()
             self.clock.tick(60)
+
 
 Game().run()
