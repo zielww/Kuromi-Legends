@@ -1,8 +1,11 @@
+import os
 import sys
 
 import pygame
 import math
 import random
+
+from selenium.webdriver.common.devtools.v85.audits import disable
 
 from scripts.utils import load_image, load_images, Animation
 from scripts.entities import PhysicsEntity, Player, Enemy
@@ -62,11 +65,13 @@ class Game:
         # Define Tile Map
         self.tilemap = Tilemap(self, tile_size=16)
 
-        # Load one of the pre-made levels
-        self.load_level(0)
+        # Level variable for level transition
+        self.level = 0
+        self.load_level(self.level)
 
         # Screen shake values
         self.screenshake = 0
+
 
     def load_level(self, map_id):
         self.tilemap.load('data/maps/' + str(map_id) + '.json')
@@ -95,6 +100,9 @@ class Game:
         # Allows the user to be dead
         self.dead = 0
 
+        # Transition variable
+        self.transition = -30
+
     def run(self):
         while True:
             # Clear the Screen
@@ -103,11 +111,23 @@ class Game:
             # Add screenshake
             self.screenshake = max(0, self.screenshake - 1)
 
+            # Handles level transition
+            if not len(self.enemies):
+                self.transition += 1
+                if self.transition > 30:
+                    # Added limit to levels
+                    self.level = min(self.level + 1, len(os.listdir('data/maps')) - 1)
+                    self.load_level(self.level)
+            if self.transition < 0:
+                self.transition += 1
+
             # Revives the player after 40 frames
             if self.dead:
                 self.dead += 1
+                if self.dead == 10:
+                    self.transition = min(30, self.transition + 1)
                 if self.dead > 40:
-                    self.load_level(0)
+                    self.load_level(self.level)
 
             # Position the camera in the center of the screen (player)
             self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
@@ -213,7 +233,17 @@ class Game:
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = False
 
-            screenshake_offset = (random.random() * self.screenshake - self.screenshake / 2, random.random() * self.screenshake - self.screenshake / 2)
+            # Transition visuals
+            if self.transition:
+                transition_surf = pygame.Surface(self.display.get_size())
+                pygame.draw.circle(transition_surf, (255, 255, 255),
+                                   (self.display.get_width() // 2, self.display.get_height() // 2),
+                                   (30 - abs(self.transition)) * 8)
+                transition_surf.set_colorkey((255, 255, 255))
+                self.display.blit(transition_surf, (0, 0))
+
+            screenshake_offset = (random.random() * self.screenshake - self.screenshake / 2,
+                                  random.random() * self.screenshake - self.screenshake / 2)
             # Blit the display into the screen
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), screenshake_offset)
             # Method to update the screen every frame
