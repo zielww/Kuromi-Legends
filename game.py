@@ -23,13 +23,14 @@ class Game:
         pygame.display.set_caption('Onegai My Kuromi')
 
         # Change window resolution
-        self.screen = pygame.display.set_mode((640, 480))
+        self.fullscreen = False
+        self.screen = pygame.display.set_mode((1280, 720))
 
         # Initialize second surface for rendering (used for asset scaling)
-        self.display = pygame.Surface((320, 240), pygame.SRCALPHA)
+        self.display = pygame.Surface((640, 360), pygame.SRCALPHA)
 
         # Display for outlines
-        self.display_2 = pygame.Surface((320, 240))
+        self.display_2 = pygame.Surface((640, 360))
 
         # initialize game clock
         self.clock = pygame.time.Clock()
@@ -150,7 +151,7 @@ class Game:
                     # Added limit to levels
                     self.level = min(self.level + 1, len(os.listdir('data/maps')) - 1)
                     self.load_level(self.level)
-                    if self.level == len(os.listdir('data/maps')) - 3:
+                    if self.level == len(os.listdir('data/maps')) - 1:
                         self.sfx['victory'].play()
             if self.transition < 0:
                 self.transition += 1
