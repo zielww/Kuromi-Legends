@@ -91,6 +91,9 @@ class Game:
         # Screen shake values
         self.screenshake = 0
 
+        # Mouse button
+        self.clicking = False
+
     def load_level(self, map_id):
         self.tilemap.load('data/maps/' + str(map_id) + '.json')
 
@@ -250,24 +253,35 @@ class Game:
 
             # Loop for All type of Events
             for event in pygame.event.get():
+                # Keyboard Controls
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_a or event.key == pygame.K_LEFT:
                         self.movement[0] = True
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                         self.movement[1] = True
-                    if event.key == pygame.K_UP:
+                    if event.key == pygame.K_w or event.key == pygame.K_SPACE:
                         if self.player.jump():
                             self.sfx['jump'].play()
                     if event.key == pygame.K_x:
                         self.player.dash()
                 if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_a or event.key == pygame.K_LEFT:
                         self.movement[0] = False
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                         self.movement[1] = False
+
+                #Mouse controls
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        self.clicking = True
+                        self.player.dash()
+
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1:
+                        self.clicking = False
 
             # Transition visuals
             if self.transition:
