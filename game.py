@@ -112,6 +112,7 @@ class Game:
 
         # Mouse button
         self.clicking = False
+        self.right_clicking = False
 
         # Main Menu
         self.game_state = 'menu'
@@ -373,11 +374,14 @@ class Game:
                         pygame.quit()
                         sys.exit()
                     if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            pygame.quit()
+                            sys.exit()
                         if event.key == pygame.K_a or event.key == pygame.K_LEFT:
                             self.movement[0] = True
                         if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                             self.movement[1] = True
-                        if event.key == pygame.K_w or event.key == pygame.K_SPACE:
+                        if event.key == pygame.K_w or event.key == pygame.K_SPACE or event.key == pygame.K_UP:
                             if self.player.jump():
                                 self.sfx['jump'].play()
                                 self.screenshake = max(5, self.screenshake)
@@ -395,11 +399,17 @@ class Game:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         if event.button == 1:
                             self.clicking = True
+                            self.player.shoot()
+                        if event.button == 3:
+                            self.right_clicking = True
                             self.player.dash()
 
                     if event.type == pygame.MOUSEBUTTONUP:
                         if event.button == 1:
                             self.clicking = False
+                        if event.button == 3:
+                            self.right_clicking = False
+                            self.player.dash()
 
                 # Transition visuals
                 if self.transition:
