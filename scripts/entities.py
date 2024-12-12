@@ -253,7 +253,6 @@ class Enemy(PhysicsEntity):
                 dis = (self.game.player.pos[0] - self.pos[0], self.game.player.pos[1] - self.pos[1])
                 if abs(dis[1]) or abs(dis[0]) < 1000:
                     if self.flip and dis[0] < 0:
-                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append(
                             [[self.rect().centerx - 7, self.rect().centery], -1.5, 0, self.game.assets['projectile'],
                              (86, 68, 54)])
@@ -262,7 +261,6 @@ class Enemy(PhysicsEntity):
                             self.game.sparks.append(Spark(self.game.projectiles[-1][0], random.random() - 0.5 + math.pi,
                                                           2 + random.random(), (86, 68, 54)))
                     if not self.flip and dis[0] > 0:
-                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append(
                             [[self.rect().centerx + 7, self.rect().centery], 1.5, 0, self.game.assets['projectile'],
                              (86, 68, 54)])
@@ -348,7 +346,6 @@ class Goblin(PhysicsEntity):
                 dis = (self.game.player.pos[0] - self.pos[0], self.game.player.pos[1] - self.pos[1])
                 if abs(dis[1]) or abs(dis[0]) < 1000:
                     if self.flip and dis[0] < 0:
-                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append(
                             [[self.rect().centerx - 7, self.rect().centery], -1.5, 0, self.game.assets['bomb'],
                              (255, 255, 0)])
@@ -357,7 +354,6 @@ class Goblin(PhysicsEntity):
                             self.game.sparks.append(Spark(self.game.projectiles[-1][0], random.random() - 0.5 + math.pi,
                                                           2 + random.random(), (255, 255, 0)))
                     if not self.flip and dis[0] > 0:
-                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append(
                             [[self.rect().centerx + 7, self.rect().centery], 1.5, 0, self.game.assets['bomb'],
                              (255, 255, 0)])
@@ -443,7 +439,6 @@ class Mushroom(PhysicsEntity):
                 dis = (self.game.player.pos[0] - self.pos[0], self.game.player.pos[1] - self.pos[1])
                 if abs(dis[1]) or abs(dis[0]) < 1000:
                     if self.flip and dis[0] < 0:
-                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append(
                             [[self.rect().centerx - 7, self.rect().centery], -1.5, 0, self.game.assets['orb'],
                              (255, 0, 0)])
@@ -452,7 +447,6 @@ class Mushroom(PhysicsEntity):
                             self.game.sparks.append(Spark(self.game.projectiles[-1][0], random.random() - 0.5 + math.pi,
                                                           2 + random.random(), (255, 0, 0)))
                     if not self.flip and dis[0] > 0:
-                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append(
                             [[self.rect().centerx + 7, self.rect().centery], 1.5, 0, self.game.assets['orb'],
                              (255, 0, 0)])

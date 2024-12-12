@@ -78,6 +78,7 @@ class Game:
             'dash': pygame.mixer.Sound('data/sfx/dash.wav'),
             'hit': pygame.mixer.Sound('data/sfx/hit.wav'),
             'shoot': pygame.mixer.Sound('data/sfx/shoot.wav'),
+            'intro': pygame.mixer.Sound('data/sfx/intro.wav'),
             'ambience': pygame.mixer.Sound('data/sfx/ambience.wav'),
             'victory': pygame.mixer.Sound('data/sfx/victory.wav'),
             'roar': pygame.mixer.Sound('data/sfx/roar.wav'),
@@ -88,7 +89,7 @@ class Game:
         self.sfx['jump'].set_volume(0.2)
         self.sfx['dash'].set_volume(0.4)
         self.sfx['hit'].set_volume(0.8)
-        self.sfx['shoot'].set_volume(0.2)
+        self.sfx['shoot'].set_volume(0.8)
         self.sfx['ambience'].set_volume(0.7)
         self.sfx['victory'].set_volume(0.8)
         self.sfx['roar'].set_volume(0.5)
@@ -163,6 +164,7 @@ class Game:
         pygame.mixer.music.play(-1)
 
         self.sfx['ambience'].play(-1)
+        self.sfx['intro'].play()
 
         blink_timer = 0
         show_start_text = True
@@ -224,8 +226,8 @@ class Game:
                         self.load_level(self.level)
                         if self.level == len(os.listdir('data/maps')) - 1:
                             self.sfx['victory'].play()
-                        elif self.level == len(os.listdir('data/maps')) - 2:
-                            print(self.level)
+                            self.sfx['intro'].play()
+                    elif self.level == len(os.listdir('data/maps')) - 2:
                             self.sfx['roar'].play()
                             self.sfx['final'].play(-1)
                 if self.transition < 0:
