@@ -15,8 +15,8 @@ AUTOTILE_MAP = {
 }
 
 NEIGHBOR_OFFSETS = [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (0, 0), (-1, 1), (0, 1), (1, 1)]
-PHYSICS_TILES = {'grass', 'stone', 'boulder'}
-AUTOTILE_TYPES = {'grass', 'stone', 'back_dirt'}
+PHYSICS_TILES = {'grass', 'stone', 'boulder', 'dirt'}
+AUTOTILE_TYPES = {'grass', 'stone', 'back_dirt', 'dirt'}
 
 
 class Tilemap:
